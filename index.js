@@ -87,7 +87,7 @@ class Particle {
         c.arc(this.x, this.y, this.radius, 0, Math.PI *2, false)
         c.fillStyle = this.color
         c.fill()
-        c.restore
+        c.restore()
     }
     update() {
         this.draw()
@@ -193,12 +193,11 @@ function animate() {
             // projectile collision detections
             if (dist - enemy.radius - projectile.radius < 1) {
 
-                // creating explosions
-                let numParticles = Math.min(100, enemy.radius * 2);  // Limit the maximum number of particles
-                for  (let i = 0; i < numParticles; i++) {
+                 // creating explosions
+                 for  (let i =0; i < enemy.radius *2; i ++) {
                     particles.push(new Particle(projectile.x, projectile.y, Math.random() *2, enemy.color, 
                     {x: (Math.random() - 0.5) * (Math.random() * 6), 
-                    y: (Math.random() - 0.5) * (Math.random() * 6)}))
+                     y: (Math.random() - 0.5) * (Math.random() * 6)}))
                 }
                 if (enemy.radius -10 > 5) {
                                 //increase score
