@@ -13,10 +13,20 @@ const levelEl = document.querySelector('#levelEl')
 
 let enemyImage;
 let playerImage;
+let enemyImages= []
 
 function preloadImages() {
-    enemyImage = new Image();
-    enemyImage.src = "images/enemy1.png";
+    const enemyImageNames = ["enemy_0.png", "enemy_1.png", "enemy_3.png", "enemy_6.png", "enemy_5.png", "enemy_4.png",
+    "enemy_7.png", "enemy_8.png", "enemy_9.png", "enemy_10.png", "enemy_11.png", "enemy_12.png",
+    "enemy_13.png", "enemy_14.png", "enemy_15.png", "enemy_16.png", "enemy_17.png", "enemy_18.png", "enemy_19.png"   /*...more filenames...*/];
+    for(let imageName of enemyImageNames) {
+        let img = new Image();
+        img.src = "images/color/" + imageName;
+        enemyImages.push(img)
+    }
+    
+    // enemyImage = new Image();
+    // enemyImage.src = "images/enemy1.png";
     playerImage = new Image();
     playerImage.src = "images/hero1.png";
     
@@ -26,7 +36,6 @@ function preloadImages() {
     // playerImage.src = "images/player.png";
     // ...
 }
-
 preloadImages();
 
 
@@ -85,7 +94,7 @@ class Enemy {
         this.radius = radius;
         this.color = color;
         this.velocity = velocity;
-        this.image = enemyImage;
+        this.image = enemyImages[Math.floor(Math.random() * enemyImages.length)];
     }
     draw() {
         c.save();
@@ -93,7 +102,7 @@ class Enemy {
         c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
         c.clip(); // This will clip the image to the circle
         // Draw the image centered on the enemy's position
-        c.drawImage(this.image, this.x - this.radius * 1.33, this.y - this.radius * 1.33, this.radius * 2.66, this.radius * 2.66);
+        c.drawImage(this.image, this.x - this.radius * 1, this.y - this.radius * 1, this.radius * 2, this.radius * 2);
         c.restore();
     }
     update() {
@@ -145,11 +154,11 @@ class Particle {
 
 
 //define the center of the screen
-const x = canvas.width / 2
-const y = canvas.height / 2
+const x = canvas.width *0.5
+const y = canvas.height *0.5
 
 // draw player on screen
-let player = new Player(x, y, 10, 'white')
+let player = new Player(x, y, 35, 'white')
 //create a group of projectiles
 let projectiles = []
 let enemies = []
@@ -166,7 +175,7 @@ function init() {
     score = 0;
     level = 0;
     enemiesKilled = 0;
-    enemiesToSpawn = 10
+    enemiesToSpawn = 5
     scoreEl.innerHTML = score;
     bigScoreEl.innerHTML = score;
 }
@@ -179,7 +188,7 @@ function spawnEnemies() {
     // This will run enemiesToSpawn number of times
     for (let i = 0; i < enemiesToSpawn; i++) {
         setTimeout(() => {
-            const radius = Math.random() * (30 - 4) + 4
+            const radius = Math.random() * (45 - 10) + 8  //determines the size of the enemy
             let x
             let y
             if (Math.random() < 0.5) {
@@ -264,12 +273,12 @@ function animate() {
                     {x: (Math.random() - 0.5) * (Math.random() * 6), 
                      y: (Math.random() - 0.5) * (Math.random() * 6)}))
                 }
-                if (enemy.radius -10 > 5) {
+                if (enemy.radius -10 > 10) {
                     //increase score
                     score += 100
                     scoreEl.innerHTML = score
                     gsap.to(enemy, {
-                        radius: enemy.radius - 10
+                        radius: enemy.radius - 15
                     })
                     setTimeout(() => {
                         projectiles.splice(projectileIndex, 1)
@@ -294,7 +303,6 @@ function animate() {
         levelEl.innerHTML = level;
         // modalEl.style.display = 'flex';
         // bigScoreEl.innerHTML = "Level: " + level;
-    
 
         // Add a delay before starting the next level
         setTimeout(() => {
@@ -303,10 +311,6 @@ function animate() {
         }, 3000);  // adjust delay as needed
     }
 }
-
-
-
-
 //porjectiles shooting method
 addEventListener('click', (event) => 
     {
