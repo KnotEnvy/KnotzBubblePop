@@ -18,7 +18,12 @@ let enemyImages= []
 function preloadImages() {
     const enemyImageNames = ["enemy_0.png", "enemy_1.png", "enemy_3.png", "enemy_6.png", "enemy_5.png", "enemy_4.png",
     "enemy_7.png", "enemy_8.png", "enemy_9.png", "enemy_10.png", "enemy_11.png", "enemy_12.png",
-    "enemy_13.png", "enemy_14.png", "enemy_15.png", "enemy_16.png", "enemy_17.png", "enemy_18.png", "enemy_19.png"   /*...more filenames...*/];
+    "enemy_13.png", "enemy_14.png", "enemy_15.png", "enemy_16.png", "enemy_17.png", "enemy_18.png", "enemy_19.png",
+    "enemy_20.png", "enemy_21.png", "enemy_22.png", "enemy_23.png", "enemy_24.png", "enemy_25.png", "enemy_26.png",
+    "enemy_27.png", "enemy_28.png", "enemy_29.png", "enemy_30.png", "enemy_31.png", "enemy_32.png", "enemy_33.png",
+    "enemy_34.png", "enemy_35.png", "enemy_36.png", "enemy_37.png", "enemy_38.png", "enemy_39.png", "enemy_40.png",
+    "enemy_41.png", "enemy_42.png", "enemy_43.png", "enemy_44.png", "enemy_45.png", "enemy_46.png", "enemy_47.png",
+    "enemy_48.png", "enemy_49.png"   /*...more filenames...*/];
     for(let imageName of enemyImageNames) {
         let img = new Image();
         img.src = "images/color/" + imageName;
@@ -181,7 +186,7 @@ function init() {
 }
 
 let spawnIntervalId;
-let enemiesToSpawn = 10; // Set initial number of enemies
+let enemiesToSpawn = 5; // Set initial number of enemies
 let newLevelStarted = false; 
 //spawn enemies
 function spawnEnemies() {
