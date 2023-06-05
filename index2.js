@@ -51,6 +51,9 @@ class Player {
         this.y =y
         this.radius =radius 
         this.color = color
+        this.dx = 0;
+        this.dy = 0;
+        this.speed = 2;
         this.image = playerImage
 
     }
@@ -67,6 +70,22 @@ class Player {
         c.drawImage(this.image, -this.radius*2, -this.radius*2, this.radius * 4, this.radius * 4);
 
         c.restore();  // restore the context to its original state
+    }
+    update() {
+        // Prevent the player from moving off the screen
+        if (this.x - this.radius + this.dx < 0 || this.x + this.radius + this.dx > canvas.width) {
+            this.dx = 0;
+        }
+        if (this.y - this.radius + this.dy < 0 || this.y + this.radius + this.dy > canvas.height) {
+            this.dy = 0;
+        }
+
+        // Update position
+        this.x += this.dx;
+        this.y += this.dy;
+
+        // Draw the player
+        this.draw();
     }
 }
 // projcetile class
@@ -85,9 +104,12 @@ class Projectile {
         c.fill()
     }
     update() {
-        this.draw()
-        this.x = this.x + this.velocity.x
-        this.y = this.y + this.velocity.y
+        // Update position
+        this.x += this.velocity.dx;
+        this.y += this.velocity.dy;
+
+        // Draw the projectile
+        this.draw();
     }
 }
 
@@ -156,14 +178,40 @@ class Particle {
     }
 }
 
+class Star {
+    constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 5;
+        this.speed = Math.random() * 3;
+    }
 
+    draw() {
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fillStyle = 'white';
+        c.fill();
+    }
+
+    update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) {
+            this.y = 0;
+            this.x = Math.random() * canvas.width;
+            this.speed = Math.random() * 3;
+            this.size = Math.random() * 5;
+        }
+    }
+}
+
+const stars = new Array(200).fill().map(() => new Star());
 
 //define the center of the screen
 const x = canvas.width *0.5
 const y = canvas.height *0.5
 
 // draw player on screen
-let player = new Player(x, y, 35, 'white')
+let playewr = new Player(x, y, 35, 'white')
 //create a group of projectiles
 let projectiles = []
 let enemies = []
@@ -223,11 +271,12 @@ function spawnEnemies() {
 //animate objects on screen
 let animationId
 let score = 0
+let lightningTimeout;
 function animate() {
     animationId = requestAnimationFrame(animate)
     c.fillStyle = 'rgba(0, 0, 0, 0.1)'
     c.fillRect(0, 0, canvas.width, canvas.height)
-    player.draw()
+    player.update()
     particles.forEach((particle, index) => {
         if (particle.alpha <= 0) {
             particles.splice(index, 1)
@@ -244,6 +293,18 @@ function animate() {
             }, 0)
         }
     })
+    stars.forEach(star => {
+        star.draw();
+        star.update();
+    });
+
+    if (Math.random() < 0.005 && !lightningTimeout) { // 0.5% chance each frame
+        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        lightningTimeout = setTimeout(() => {
+            lightningTimeout = null;
+        }, 100); // lightning lasts for 100 ms
+    }
 
     enemies.forEach((enemy, index) => {
         enemy.update()
@@ -317,18 +378,70 @@ function animate() {
     }
 }
 //porjectiles shooting method
-addEventListener('click', (event) => 
-    {
-        const angle = Math.atan2(event.clientY - canvas.height/2, event.clientX - canvas.width/2)
-        
-        const velocity = {
-            x: Math.cos(angle) *5,
-            y: Math.sin(angle) *5
-        }
-        projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'white', velocity)
-    )
-})
+addEventListener('click', (event) => {
+    const angle = Math.atan2(
+        event.clientY - player.y,  // Use player's y position
+        event.clientX - player.x   // Use player's x position
+    );
 
+    const velocity = {
+        dx: Math.cos(angle) * 5,  // Adjust speed as needed
+        dy: Math.sin(angle) * 5  // Adjust speed as needed
+    };
+
+    projectiles.push(new Projectile(player.x, player.y, 5, 'white', velocity));
+});
+
+// Keydown event
+addEventListener('keydown', function(event) {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+            player.dy = -player.speed;
+            break;
+        case 'ArrowDown':
+        case 's':
+            player.dy = player.speed;
+            break;
+        case 'ArrowLeft':
+        case 'a':
+            player.dx = -player.speed;
+            break;
+        case 'ArrowRight':
+        case 'd':
+            player.dx = player.speed;
+            break;
+    }
+
+    // Normalize the velocity vector to ensure consistent speed in all directions
+    const length = Math.hypot(player.dx, player.dy);
+    if (length > player.speed) {
+        player.dx *= player.speed / length;
+        player.dy *= player.speed / length;
+    }
+});
+
+// Keyup event
+addEventListener('keyup', function(event) {
+    switch(event.key) {
+        case 'ArrowUp':
+        case 'w':
+            if (player.dy < 0) player.dy = 0;
+            break;
+        case 'ArrowDown':
+        case 's':
+            if (player.dy > 0) player.dy = 0;
+            break;
+        case 'ArrowLeft':
+        case 'a':
+            if (player.dx < 0) player.dx = 0;
+            break;
+        case 'ArrowRight':
+        case 'd':
+            if (player.dx > 0) player.dx = 0;
+            break;
+    }
+});
 startGameBtn.addEventListener('click', () => {
     init()
     animate()
